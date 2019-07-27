@@ -219,6 +219,44 @@ dlib::vector<T,2> numpy_to_dlib_vect (
 
 // ----------------------------------------------------------------------------------------
 
+template<class T>
+numpy_image<double> py_find_similarity_transform (
+        const numpy_image<T>& from_points_,
+        const numpy_image<T>& to_points_
+)
+{
+    const_image_view<numpy_image<T>> from_points(from_points_);
+    const_image_view<numpy_image<T>> to_points(to_points_);
+
+    DLIB_CASSERT(from_points.nc() == 2 && to_points.nc() == 2,
+        "Both from_points and to_points must be arrays with 2 columns.");
+    DLIB_CASSERT(from_points.nr() == to_points.nr(),
+        "from_points and to_points must have the same number of rows.");
+    DLIB_CASSERT(from_points.nr() >= 4,
+        "You need at least 4 rows in the input matrices to find a projective transform.");
+
+    std::vector<dpoint> from, to;
+    for (long r = 0; r < from_points.nr(); ++r)
+    {
+        from.push_back(dpoint(from_points[r][0], from_points[r][1]));
+        to.push_back(dpoint(to_points[r][0], to_points[r][1]));
+    }
+    auto similarity = find_similarity_transform(from, to);
+    auto m = similarity.get_m();
+    auto b = similarity.get_b();
+    numpy_image<double> out(2, 3);
+    out.mutable_at(0, 0) = m(0, 0);
+    out.mutable_at(0, 1) = m(0, 1);
+    out.mutable_at(1, 0) = m(1, 0);
+    out.mutable_at(1, 1) = m(1, 1);
+    out.mutable_at(0, 2) = b.x();
+    out.mutable_at(1, 2) = b.y();
+    return out;
+}
+
+
+// ----------------------------------------------------------------------------------------
+
 point_transform_projective py_find_projective_transform (
     const std::vector<dpoint>& from_points,
     const std::vector<dpoint>& to_points
@@ -345,6 +383,10 @@ ensures \n\
               which minimizes the mean squared error is selected. 
     !*/
         );
+
+    m.def("find_similarity_transform", &py_find_similarity_transform<double>, py::arg("from_points"), py::arg("to_points"),
+          "");
+
 
     const char* docs = 
 "requires \n\
