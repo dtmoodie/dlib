@@ -124,6 +124,15 @@ numpy_image<rgb_pixel> get_face_chip (
 
 // ----------------------------------------------------------------------------------------
 
+chip_details py_get_face_chip_details (
+        const full_object_detection& det,
+        const unsigned long size = 200,
+        const double padding = 0.2
+    )
+{
+    return get_face_chip_details(det, size, padding);
+}
+
 void bind_numpy_returns(py::module &m)
 {
     m.def("load_rgb_image", &load_rgb_image, 
@@ -161,4 +170,7 @@ void bind_numpy_returns(py::module &m)
 	"Takes an image and a full_object_detections object that reference faces in that image and returns the faces as a list of Numpy arrays representing the image.  The faces will be rotated upright and scaled to 150x150 pixels or with the optional specified size and padding.",
 	py::arg("img"), py::arg("faces"), py::arg("size")=150, py::arg("padding")=0.25
     );
+
+    m.def("get_face_chip_details", &py_get_face_chip_details, "", py::arg("full_object_detection"), py::arg("size") = 200, py::arg("padding") = 0.2);
+
 }

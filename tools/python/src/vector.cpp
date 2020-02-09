@@ -232,8 +232,8 @@ numpy_image<double> py_find_similarity_transform (
         "Both from_points and to_points must be arrays with 2 columns.");
     DLIB_CASSERT(from_points.nr() == to_points.nr(),
         "from_points and to_points must have the same number of rows.");
-    DLIB_CASSERT(from_points.nr() >= 4,
-        "You need at least 4 rows in the input matrices to find a projective transform.");
+    DLIB_CASSERT(from_points.nr() >= 3,
+        "You need at least 3 rows in the input matrices to find a affine transform.");
 
     std::vector<dpoint> from, to;
     for (long r = 0; r < from_points.nr(); ++r)
